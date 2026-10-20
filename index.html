@@ -55,7 +55,22 @@ h1,h2,h3,h4,p{margin:0}
 .site-header{position:sticky;top:0;z-index:50;background:var(--sf-black);height:72px}
 .site-header .bar{height:72px;display:flex;align-items:center;justify-content:space-between}
 .logo img{height:24px;width:auto}
+.hright{display:flex;align-items:center;gap:24px}
 .nav{display:flex;align-items:center;gap:24px}
+/* Navigation search: the magnifier expands into a field with the suggestions dropdown beneath it */
+.hsearch{position:relative;display:flex;align-items:center}
+/* The open field overlays the nav links (the header doesn't reflow); Join stays visible */
+.hs-field{display:none;position:absolute;left:0;top:50%;transform:translateY(-50%);width:560px;z-index:2}
+.hsearch.open .hs-toggle{visibility:hidden}
+.hsearch.open .hs-field{display:block;animation:hsin .14s ease-out}
+@keyframes hsin{from{opacity:0}to{opacity:1}}
+.hsearch.open + .nav a:not(.join){visibility:hidden}
+.hs-field .search{max-width:none}
+.hs-field .search input{height:40px;border-radius:10px;border:1px solid transparent;box-shadow:none;font-size:15px;padding:0 40px 0 38px}
+.hs-field .search input:focus{border-color:var(--sf-lime);box-shadow:0 0 0 3px rgba(177,250,99,.3)}
+.hs-field .search-field svg.lens{left:14px}
+.hs-field .search .clear{right:6px;width:28px;height:28px}
+
 .nav a{color:#fff;font-size:16px;font-weight:400;opacity:.95}
 .nav a:hover{color:var(--sf-lime)}
 .icon-btn{width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:transparent;display:grid;place-items:center;color:#fff}
@@ -252,10 +267,7 @@ section.block{padding:96px 0 0}
 @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* Overview: answer-first, modeled on G2 "AI-Generated Results" and Google AI Overviews */
-.ov{padding:32px 0 0}
-.ov .search{max-width:none}
-.ov .search input{height:56px;border-radius:14px;box-shadow:none;border-color:#cfd3d3}
-.ov .search input:focus{border-color:#5F9132;box-shadow:0 0 0 3px rgba(177,250,99,.45)}
+.ov{padding:24px 0 0}
 .aio{margin-top:24px;border:1px solid var(--sf-border);border-radius:var(--radius-lg);padding:24px 28px 20px;background:#fff}
 .aio-label{display:flex;align-items:center;gap:8px;color:var(--sf-green)}
 .aio-label h2{font-size:15px;line-height:22px;font-weight:600;color:var(--sf-ink)}
@@ -293,10 +305,11 @@ section.block{padding:96px 0 0}
 .qchip:hover{border-color:var(--sf-black)}
 
 /* Existing results (mirrors softwarefinder.com/search-result) */
-.sr{padding:48px 0 0}
+.sr-top{padding:32px 0 0}
+.sr{padding:0}
 .sr-count{font-size:16px;color:#4a4a4a}
-.sr .tabs-bar{margin-top:40px}
-.sr .tabs-bar button{font-size:16px}
+.sr-top .tabs-bar{margin-top:24px}
+.sr-top .tabs-bar button{font-size:16px}
 .cnt{display:inline-grid;place-items:center;min-width:32px;height:26px;padding:0 8px;border-radius:999px;background:#F1F1F1;color:#555;font-size:14px;font-weight:500}
 .tabs-bar button.active .cnt{background:rgba(255,255,255,.14);color:#fff}
 .sr-h{font-family:"Inter Tight",Inter,sans-serif;font-weight:600;font-size:40px;line-height:48px;color:var(--sf-ink);margin-top:64px}
@@ -331,6 +344,7 @@ section.block{padding:96px 0 0}
 
 /* ===== Responsive ===== */
 @media (max-width:1100px){
+  .hs-field{width:420px}
   .nav a.hide-md{display:none}
   .pgrid{grid-template-columns:repeat(4,1fr)}
   .help{padding:56px 40px;grid-template-columns:1fr 1fr}
@@ -339,6 +353,10 @@ section.block{padding:96px 0 0}
 @media (max-width:860px){
   .nav{display:none}
   .menu-btn{display:grid}
+  .hright{gap:12px}
+  .hsearch.open{position:absolute;left:16px;right:16px;top:16px;z-index:5}
+  .hsearch.open .hs-toggle{display:none}
+  .hs-field{position:static;transform:none;width:100%}
   .mobile-menu.open{display:flex;flex-direction:column;position:absolute;top:72px;left:0;right:0;background:var(--sf-black);padding:8px 16px 20px;gap:4px;border-top:1px solid rgba(255,255,255,.1)}
   .mobile-menu a{color:#fff;padding:10px 0}
   .hero{padding-top:120px}
@@ -357,7 +375,7 @@ section.block{padding:96px 0 0}
   .faq{grid-template-columns:1fr}
   .fgrid{grid-template-columns:1fr 1fr}
   .sr-h{font-size:32px;line-height:40px;margin-top:40px}
-  .sr .tabs-bar button{flex:0 0 auto}
+  .sr-top .tabs-bar button{flex:0 0 auto}
 }
 @media (max-width:600px){
   .hero{padding-top:96px}
@@ -402,10 +420,14 @@ section.block{padding:96px 0 0}
 <header class="site-header">
   <div class="container bar">
     <a class="logo" href="#/" aria-label="Software Finder home"><img id="sfLogo" alt="Software Finder" width="195" height="24"></a>
-    <nav class="nav" aria-label="Primary">
-      <button class="icon-btn" id="hdrSearch" aria-label="Search">
+    <div class="hright">
+    <div class="hsearch" id="hsearch">
+      <button class="icon-btn hs-toggle" id="hdrSearch" aria-label="Search" aria-expanded="false">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       </button>
+      <div class="hs-field" id="hsField"></div>
+    </div>
+    <nav class="nav" aria-label="Primary">
       <a href="#/">Software Categories</a>
       <a href="#/" class="hide-md">For Vendors</a>
       <a href="#/">Resource Center</a>
@@ -415,6 +437,7 @@ section.block{padding:96px 0 0}
     <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
+    </div>
   </div>
   <div class="mobile-menu" id="mobileMenu">
     <a href="#/">Software Categories</a><a href="#/">For Vendors</a><a href="#/">Resource Center</a><a href="#/">Write a Review</a><a href="#/" style="color:var(--sf-lime)">Join Free or Log in</a>
@@ -926,6 +949,7 @@ function renderHome(){
   </div>`;
 
   activeSearch = mountSearch(app.querySelector('[data-search]'), {onSubmit:go});
+  syncHeaderSearch(null);
   app.querySelector('#homeTabs').addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
     homeTab = b.dataset.k;
@@ -1039,7 +1063,6 @@ function overviewHTML(q, topicKey){
     : `<p class="aio-answer">There isn’t enough Software Finder data to answer this yet. Try one of these questions:</p>
        <div class="qchips">${QUESTIONS.filter(x=>x.pop).map(x=>`<button class="qchip" data-q="${esc(x.q)}">${esc(x.q)}</button>`).join('')}</div>`;
   return `<section class="ov"><div class="container">
-    <div id="ovSearch">${searchHTML(q,'Ask a question or search software')}</div>
     <div class="aio" aria-live="polite" aria-busy="${!!topicKey}">
       <div class="aio-label">${SPARK}<h2>AI Overview</h2></div>
       <div class="aio-body" id="aioBody">${body}</div>
@@ -1047,19 +1070,23 @@ function overviewHTML(q, topicKey){
   </div></section>`;
 }
 
+const TAB_NAMES = ['Products','Services','Categories','Resources'];
+
+// Result count + tabs, shown above the AI Overview
+function resultsTopHTML(q, topicKey){
+  const r = topicKey ? R[topicKey] : null;
+  const count = r ? `${r.total} Search Results For “${esc(r.term)}”` : `0 Search Results For “${esc(q)}”`;
+  return `<section class="sr-top"><div class="container">
+    <p class="sr-count">${count}</p>
+    <div class="tabs-bar" role="tablist" id="srTabs">${TAB_NAMES.map((t,i)=>`<button role="tab" data-i="${i}" class="${i===0?'active':''}" aria-selected="${i===0}">${t} <span class="cnt">${r ? r.tabs[i] : 0}</span></button>`).join('')}</div>
+  </div></section>`;
+}
+
+// The existing Software Finder results list, below the AI Overview
 function resultsHTML(q, topicKey){
   const r = topicKey ? R[topicKey] : null;
-  const tabs = ['Products','Services','Categories','Resources'];
-  if (!r){
-    return `<section class="sr"><div class="container">
-      <p class="sr-count">0 Search Results For “${esc(q)}”</p>
-      <div class="tabs-bar" role="tablist">${tabs.map((t,i)=>`<button role="tab" class="${i===0?'active':''}">${t} <span class="cnt">0</span></button>`).join('')}</div>
-      <div class="sr-note">No products match this search yet.</div></div></section>`;
-  }
   return `<section class="sr" id="results"><div class="container">
-    <p class="sr-count">${r.total} Search Results For “${esc(r.term)}”</p>
-    <div class="tabs-bar" role="tablist" id="srTabs">${tabs.map((t,i)=>`<button role="tab" data-i="${i}" class="${i===0?'active':''}" aria-selected="${i===0}">${t} <span class="cnt">${r.tabs[i]}</span></button>`).join('')}</div>
-    <div id="srBody">${productsList(r)}</div>
+    <div id="srBody">${r ? productsList(r) : '<div class="sr-note">No products match this search yet.</div>'}</div>
   </div></section>`;
 }
 
@@ -1084,8 +1111,9 @@ function productsList(r){
 function renderResults(q){
   const topicKey = classify(q);
   document.title = `${q} | Software Finder`;
-  app.innerHTML = `<div class="view">${overviewHTML(q, topicKey)}${resultsHTML(q, topicKey)}</div>`;
-  activeSearch = mountSearch(app.querySelector('#ovSearch [data-search]'), {onSubmit:go});
+  app.innerHTML = `<div class="view">${resultsTopHTML(q, topicKey)}${overviewHTML(q, topicKey)}${resultsHTML(q, topicKey)}</div>`;
+  activeSearch = null;
+  syncHeaderSearch(q);
 
   app.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.q)));
   // Brief "generating" state, then the answer
@@ -1100,12 +1128,14 @@ function renderResults(q){
     }, 650);
   }
   const srTabs = app.querySelector('#srTabs');
-  if (srTabs) srTabs.addEventListener('click', e=>{
+  srTabs.addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
     srTabs.querySelectorAll('button').forEach(x=>{ x.classList.toggle('active', x===b); x.setAttribute('aria-selected', x===b); });
-    const i = +b.dataset.i, r = R[topicKey];
-    app.querySelector('#srBody').innerHTML = i===0 ? productsList(r)
-      : `<h2 class="sr-h">${b.firstChild.textContent.trim()}</h2><div class="sr-note">This prototype only fills in the Products tab. On softwarefinder.com this tab lists ${r.tabs[i]} ${b.firstChild.textContent.trim().toLowerCase()} for “${esc(r.term)}”.</div>`;
+    const i = +b.dataset.i, r = R[topicKey], name = TAB_NAMES[i];
+    app.querySelector('.ov').hidden = i!==0;   // the AI Overview recommends products, so it belongs to the Products tab
+    app.querySelector('#srBody').innerHTML = i===0
+      ? (r ? productsList(r) : '<div class="sr-note">No products match this search yet.</div>')
+      : `<h2 class="sr-h">${name}</h2><div class="sr-note">This prototype only fills in the Products tab. On softwarefinder.com this tab lists ${r ? r.tabs[i] : 0} ${name.toLowerCase()} for “${esc(r ? r.term : q)}”.</div>`;
   });
 }
 
@@ -1131,11 +1161,23 @@ let toastT;
 function toast(msg){ const t=document.getElementById('toast'); t.textContent = 'Prototype: ' + msg.replace(/^Prototype: /,''); t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
 document.addEventListener('click', e=>{ const b=e.target.closest('[data-toast]'); if(b) toast(b.dataset.toast); });
 
-document.getElementById('hdrSearch').addEventListener('click', ()=>{
-  if (!activeSearch) return;
-  activeSearch.input.scrollIntoView({block:'center', behavior:'smooth'});
-  setTimeout(()=>activeSearch.focus(), 250);
-});
+// Navigation search: the magnifier expands into a field with the same suggestions dropdown as the hero search
+const hsearch = document.getElementById('hsearch'), hsToggle = document.getElementById('hdrSearch');
+document.getElementById('hsField').innerHTML = searchHTML('', 'Search software or ask a question');
+const headerSearch = mountSearch(hsearch.querySelector('[data-search]'), {onSubmit:go});
+function openHeaderSearch(){ hsearch.classList.add('open'); hsToggle.setAttribute('aria-expanded','true'); }
+function collapseHeaderSearch(){ hsearch.classList.remove('open'); hsToggle.setAttribute('aria-expanded','false'); }
+// Results pages pre-fill the field with the current query so opening it lets the user refine it
+function syncHeaderSearch(q){
+  headerSearch.input.value = q || '';
+  hsearch.querySelector('[data-search]').classList.toggle('has-value', !!q);
+  headerSearch.input.blur();
+  collapseHeaderSearch();
+}
+hsToggle.addEventListener('click', ()=>{ openHeaderSearch(); headerSearch.focus(); headerSearch.input.select(); });   // typing replaces the current query
+// Collapse back to the magnifier when focus leaves the field (after a choice, Esc, or a click elsewhere)
+headerSearch.input.addEventListener('blur', ()=>setTimeout(()=>{ if (!hsearch.contains(document.activeElement)) collapseHeaderSearch(); }, 120));
+
 const menuBtn = document.getElementById('menuBtn'), mm = document.getElementById('mobileMenu');
 menuBtn.addEventListener('click', ()=>{ const o = mm.classList.toggle('open'); menuBtn.setAttribute('aria-expanded', o); });
 mm.addEventListener('click', ()=>{ mm.classList.remove('open'); menuBtn.setAttribute('aria-expanded', false); });
